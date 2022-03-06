@@ -2,7 +2,7 @@
 Convert TotalFreedomMod's indefinite bans to Plex's format
 
 ## Requirements
-This project requires Python 2.7 or later. You will also need `pip` installed.
+This project requires Python 3.7 or later. You will also need `pip` installed.
 IBConverter will automatically install `pyyaml` for you.
 
 ## How to use
