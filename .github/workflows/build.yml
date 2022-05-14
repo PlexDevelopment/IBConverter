@@ -15,12 +15,10 @@ jobs:
         with:
           command: build
           args: --release --all-features
-      - uses: actions/upload-release-asset@v1
+      - uses: actions/upload-artifact@v3
         with:
-          upload_url: ${{ steps.build }}
-          asset_path: target/release/IBConverter.exe
-          asset_name: IBConverter.exe
-          asset_content_type: application/octet-stream
+          name: IBConverter-Windows
+          path: target/release/IBConverter.exe
   build_macos:
     name: IBConverter Mac
     runs-on: macos-latest
