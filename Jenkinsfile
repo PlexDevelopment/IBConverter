@@ -1,11 +1,11 @@
 pipeline {
-  agent {
-    docker { image 'rust:latest' }
-  }
+  agent any
   stages {
     stage('Build') {
-      steps {
-        sh 'cargo build --release'
+      withDockerContainer('rust:latest') {
+        steps {
+          sh 'cargo build --release'
+        }
       }
       post {
         always {
