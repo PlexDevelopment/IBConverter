@@ -1,3 +1,4 @@
+#![allow(non_snake_case)]
 use std::{env, fs, io};
 use std::collections::{BTreeMap};
 use std::io::{Read};
