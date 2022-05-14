@@ -3,7 +3,7 @@ pipeline {
     stages {
         stage('Build') {
             steps {
-				withDockerContainer('rust:latest') {
+                withDockerContainer(image: 'rust:latest', toolName: 'Docker') {
 					sh 'cargo build --release'
 				}
 			}
