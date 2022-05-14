@@ -5,7 +5,7 @@ on: [ push ]
 jobs:
   build_and_test:
     name: IBConverter
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     steps:
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
