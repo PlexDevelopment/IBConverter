@@ -1,14 +1,32 @@
-use std::{fs, io};
+use std::{env, fs, io};
 use std::borrow::Borrow;
 use std::collections::{BTreeMap, BTreeSet, HashMap};
 use std::fmt::format;
+use std::io::{ErrorKind, Read, Write};
 use std::ops::Index;
+use std::path::Path;
 
 use yaml_rust::{Yaml, YamlEmitter, YamlLoader};
 use yaml_rust::yaml::Array;
 
 fn main() {
-    let fileData = fs::read_to_string("indefinitebans.yml").expect("Unable to read this file! Perhaps it's corrupt or the file was not found.");
+    env::set_var("RUST_BACKTRACE", "full");
+    println!("Welcome to the IB Converter for converting TFM's indefinite bans file to Plex's!");
+    println!("Let's start off, please provide a path to TFM's indefinite bans file.");
+    // Path::new(".").read_dir().unwrap().for_each(|f| println!("{:?}", f.unwrap().file_name()));
+    let mut path = String::new();
+    io::stdin().read_line(&mut path).expect("Unable to parse this path.");
+    if !path.starts_with("/") {
+        path.insert_str(0, "./");
+    }
+    path = path.replace("\n", "").replace("\\n", "").replace("\r", "");
+    while !Path::new(&path).exists() {
+        println!("Unable to find {:?}, please provide a valid path.", &path);
+        path = "".to_string();
+        io::stdin().read_line(&mut path).expect("Unable to parse this path.");
+        path = path.replace("\n", "").replace("\\n", "").replace("\r", "");
+    }
+    let fileData = fs::read_to_string(&path).expect("Unable to read this file! Perhaps it's corrupt or the file was not found.");
     let yaml = &YamlLoader::load_from_str(&fileData).expect("This file couldn't be loaded as a YAML")[0];
     let parentHash = yaml.as_hash().expect("Unable to load everything into a hash");
     let mut map: BTreeMap<usize, BTreeMap<String, Vec<String>>> = BTreeMap::new();
@@ -50,6 +68,10 @@ fn main() {
     println!("{:?}", s);
     println!("{:?}", &s[0..4]);
     fs::write("./indefbans.yml", &s[4..]).expect("Unable to write to file");
+
+    let mut stdin = io::stdin();
+    println!("Press any key to continue...");
+    let _ = stdin.read(&mut [0u8]).unwrap();
 }
 
 fn add_one(num: &mut i32) {
