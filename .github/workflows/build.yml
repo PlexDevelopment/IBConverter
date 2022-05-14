@@ -17,6 +17,7 @@ jobs:
           args: --release --all-features
       - uses: actions/upload-release-asset@v1
         with:
+          upload_url: ${{ steps.build }}
           asset_path: target/release/IBConverter.exe
           asset_name: IBConverter.exe
           asset_content_type: application/octet-stream
