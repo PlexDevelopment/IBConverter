@@ -3,8 +3,16 @@ use std::{env, fs, io};
 use std::collections::{BTreeMap};
 use std::io::{Read};
 use std::path::Path;
+use serde_derive::{Deserialize, Serialize};
 
 use yaml_rust::{Yaml, YamlLoader};
+
+#[derive(Debug, Deserialize, Serialize)]
+#[serde(untagged)]
+enum Value {
+    SingleString(String),
+    StringVec(Vec<String>),
+}
 
 fn main() {
     env::set_var("RUST_BACKTRACE", "full");
@@ -26,35 +34,41 @@ fn main() {
     let file_data = fs::read_to_string(&path).expect("Unable to read this file! Perhaps it's corrupt or the file was not found.");
     let yaml = &YamlLoader::load_from_str(&file_data).expect("This file couldn't be loaded as a YAML")[0];
     let parent_hash = yaml.as_hash().expect("Unable to load everything into a hash");
-    let mut map: BTreeMap<usize, BTreeMap<String, Vec<String>>> = BTreeMap::new();
+    let mut map: BTreeMap<usize, BTreeMap<String, Value>> = BTreeMap::new();
     for i in 0..parent_hash.keys().len()
     {
         let k = parent_hash.iter().skip(i).next().unwrap().0;
         println!("Key: {:?}", k);
-        let mut data: BTreeMap<String, Vec<String>> = BTreeMap::new();
+        let mut data: BTreeMap<String, Value> = BTreeMap::new();
         let mut names: Vec<String> = Vec::new();
         if k.as_str().is_some() {
             names.push(k.as_str().unwrap().to_string());
-            data.insert("users".to_string(), names);
+            data.insert("users".to_string(), Value::StringVec(names));
         } else {
             let str = String::from(k.to_owned().as_i64().clone().unwrap().to_string());
             names.push(str);
-            data.insert("users".to_string(), names);
+            data.insert("users".to_string(), Value::StringVec(names));
         }
         let hash = parent_hash[k].as_hash().expect("Couldn't load key as hash");
         if hash.contains_key(&Yaml::String("uuid".to_string())) {
             let mut uuids: Vec<String> = Vec::new();
             uuids.push(hash.get(&Yaml::String("uuid".to_string())).unwrap().to_owned().into_string().unwrap());
-            data.insert("uuids".to_string(), uuids);
+            data.insert("uuids".to_string(), Value::StringVec(uuids));
         }
         if hash.contains_key(&Yaml::String("ips".to_string())) {
             if hash.get(&Yaml::String("ips".to_string())).unwrap().is_array() {
                 let mut ips: Vec<String> = Vec::new();
                 for x in hash.get(&Yaml::String("ips".to_string())).unwrap().as_vec().unwrap() {
-                    ips.push(x.to_owned().into_string().unwrap());
+                    let ip = x.to_owned().into_string();
+                    if ip.is_some() {
+                        ips.push(ip.unwrap());
+                    }
                 }
-                data.insert("ips".to_string(), ips);
+                data.insert("ips".to_string(), Value::StringVec(ips));
             }
+        }
+        if hash.contains_key(&Yaml::String("reason".to_string())) {
+            data.insert("reason".to_string(), Value::SingleString(hash.get(&Yaml::String("reason".to_string())).unwrap().as_str().unwrap().to_string()));
         }
         map.insert(i, data);
         println!("Inserted {}", i);

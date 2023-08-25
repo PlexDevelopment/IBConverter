@@ -6,4 +6,5 @@ edition = "2021"
 [dependencies]
 yaml-rust = "0.4"
 serde = "1.0"
-serde_yaml = "0.8"
+serde_yaml = "0.9.22"
+serde_derive = "1.0.166"
